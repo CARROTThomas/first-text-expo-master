@@ -4,12 +4,14 @@ import axios from 'axios';
 import { ActivityIndicator } from 'react-native';
 
 
+
 const ChatComponent = () => {
   const [input, setInput] = useState('');
   const [conversation, setConversation] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchPreviousMessages = async () => {
+    setLoading(true);
     try {
       const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MDk3MDk1NjcsImV4cCI6MTcwOTcxNjc2Nywicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidGhvbWFzIn0.DG4JAEAK1l3bAuXmC2VlZJYQkup3WcFmBeTIaaw6NiTTvg2ygOI7Cw00af3G3tGZn6l_EKgZEJ3f0gz0lIQNTyeu9DP6LDynr30zbHAaQa_fEosTrsTTsswS6YJho6peNB-_lblZKa21H7tHvTdl82a17a7jQcKRSizBcTN8zJdkF8mNoTOnR-mGoM7E0nz2zmST6oPFGVqWaLDu-LhRILcYkG97g5YNSe-L-yCNxVYTv7xM51N0z5PV7TpBfxIkzOfs_M_cmzEWF90rGSPNIDJw83QBQK9OpESR3zM6nOK3p7a8YouXTThxDlXnMWKthOIyImEfwTU2JEZtLXVvWA';
 
@@ -19,10 +21,18 @@ const ChatComponent = () => {
         },
       });
 
-      const previousMessages = response.data;
-      console.log('Messages précédents récupérés avec succès :', previousMessages);
-      setConversation(response.data);
-      console.log(conversation)
+      //const previousMessages = response.data;
+      console.log('Messages précédents récupérés avec succès :', response.data);
+
+
+      // @ts-ignore
+      setConversation(prevConversation => [
+        ...prevConversation,
+        ...response.data.map((message) => [
+          { type: 'question', content: message.question },
+          { type: 'response', content: message.response },
+        ]).flat(),
+      ]);
 
 
 
@@ -94,24 +104,29 @@ const ChatComponent = () => {
 
   return (
       <View style={styles.container}>
-
-          <ScrollView style={styles.responseContainer}>
-            {conversation.map((item, index) => (
-                <View key={index} style={styles.messageContainer}>
-                  {item.type === 'question' && (
-                      <View style={[styles.message, styles.questionMessage]}>
-                        <Text style={styles.questionText}>{item.content}</Text>
-                      </View>
-                  )}
-                  {item.type === 'response' && (
-                      <View style={[styles.message, styles.responseMessage]}>
-                        <Text>IA</Text>
-                        <Text style={styles.contentText}>{item.content}</Text>
-                      </View>
-                  )}
-                </View>
-            ))}
-          </ScrollView>
+        {loading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+            <FlatList
+                data={conversation}
+                keyExtractor={(item, index) => `${item.type}_${index}`}
+                renderItem={({ item, index }) => (
+                    <View style={styles.messageContainer}>
+                      {item.type === 'question' && (
+                          <View style={[styles.message, styles.questionMessage]}>
+                            <Text style={styles.questionText}>{item.content}</Text>
+                          </View>
+                      )}
+                      {item.type === 'response' && (
+                          <View style={[styles.message, styles.responseMessage]}>
+                            <Text>IA</Text>
+                            <Text style={styles.contentText}>{item.content}</Text>
+                          </View>
+                      )}
+                    </View>
+                )}
+            />
+        )}
 
         <TextInput
             style={styles.input}
