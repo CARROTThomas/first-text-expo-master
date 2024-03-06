@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Button, Text } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import axios from 'axios';
-import * as SecureStore from "expo-secure-store";
-
-const token = SecureStore.getItem('token');
 
 // Interface pour définir le type de l'objet selectedFile
 interface SelectedFile {
