@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, Text, ScrollView, StyleSheet } from 'react-native';
 import axios from 'axios';
 
+
+import * as SecureStore from "expo-secure-store";
+const token = SecureStore.getItem('token');
+
+
 const ChatComponent = () => {
   const [input, setInput] = useState('');
   const [conversation, setConversation] = useState([]);
 
   const fetchPreviousMessages = async () => {
     try {
-      const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MDkyODg1OTgsImV4cCI6MTcwOTM3NDk5OCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidGhvbWFzIn0.igqz0PyiH1l3re0lu-HJ3_yC6AkFrYsqWaR9E5UA-HeKRO54n-XCJLqtjSz4TXsfBY5acOuEX1LTmC1_tjX42e4FTTM6KEFxdH7XUKrsgl5V2HFtCHE4bPWUPFRHaMykHLM-mEt15LHTPACnFveK7Gr6xOmo9f-RSjejZYXYEq7QfsK8fLEUBAOSktSNaAsjZusxjvAHLyQPrBdZ2NCc0A8QEK2rzrwU22MpGaZg8MqzI-uYYPqIjQLvLIBSdQif8wDjqPc5A4x-ZrTbkRPekSY3yvJUJnJ_gahlL3iyoqZjdYt_n5TZs6PIkDb7rWdBduCVM9PDBqRcW_iX0AeZ3Q';
 
-      const response = await axios.get('https://localhost:8000/api/chat/messages', {
+      const response = await axios.get('https://askia.esdlyon.dev/api/chat/messages', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -35,10 +39,9 @@ const ChatComponent = () => {
 
   const sendToIA = async () => {
 
-    const backendUrl = 'https://localhost:8000/api/chat/ask/pdf';
+    const backendUrl = 'https://askia.esdlyon.dev/api/chat/ask/pdf';
 
     try {
-      const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MDkyODg1OTgsImV4cCI6MTcwOTM3NDk5OCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidGhvbWFzIn0.igqz0PyiH1l3re0lu-HJ3_yC6AkFrYsqWaR9E5UA-HeKRO54n-XCJLqtjSz4TXsfBY5acOuEX1LTmC1_tjX42e4FTTM6KEFxdH7XUKrsgl5V2HFtCHE4bPWUPFRHaMykHLM-mEt15LHTPACnFveK7Gr6xOmo9f-RSjejZYXYEq7QfsK8fLEUBAOSktSNaAsjZusxjvAHLyQPrBdZ2NCc0A8QEK2rzrwU22MpGaZg8MqzI-uYYPqIjQLvLIBSdQif8wDjqPc5A4x-ZrTbkRPekSY3yvJUJnJ_gahlL3iyoqZjdYt_n5TZs6PIkDb7rWdBduCVM9PDBqRcW_iX0AeZ3Q';
 
       const backendResponse = await axios.post(
           backendUrl,
@@ -63,6 +66,7 @@ const ChatComponent = () => {
         console.log('Question utilisateur :', lastMessage.question);
         console.log('Réponse du backend :', lastMessage.response);
 
+        // @ts-ignore
         setConversation(prevConversation => [
           ...prevConversation,
           { type: 'question', content: lastMessage.question },
